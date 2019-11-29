@@ -48,12 +48,7 @@ class Demo1 extends StatelessWidget {
         4,
         (i) {
           i += 5;
-          return MyItem(
-              key: 'item $i',
-              index: i,
-              onTap: () {
-                showSnackBar('Clicked the ${i}th item');
-              });
+          return null;
         },
       ),
     ];
@@ -69,8 +64,23 @@ class Demo1 extends StatelessWidget {
           child: Container(
             child: DraggableContainer(
               draggableMode: true,
-               autoReorder: true,
-               hijackPopRoute: false,
+              autoReorder: true,
+              hijackPopRoute: false,
+              slotPlaceholder: Center(
+                child: RawMaterialButton(
+                  onPressed: () {
+                    print('lol');
+                  },
+                  child: Icon(
+                    Icons.add,
+                    size: 28.0,
+                    color: Colors.white,
+                  ),
+                  shape: CircleBorder(),
+                  elevation: 2.0,
+                  fillColor: Colors.blue,
+                ),
+              ),
 //               allWayUseLongPress: true,
               // slot decoration
               slotDecoration: BoxDecoration(
