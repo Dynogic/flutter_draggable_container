@@ -78,6 +78,7 @@ class DraggableContainer<T extends DraggableItem> extends StatefulWidget {
   final bool allWayUseLongPress;
   final List<T> items;
   final Widget deleteButton;
+  final bool hijackPopRoute;
 
   DraggableContainer({
     Key key,
@@ -88,6 +89,7 @@ class DraggableContainer<T extends DraggableItem> extends StatefulWidget {
     this.slotDecoration,
     this.dragDecoration,
     this.autoReorder: true,
+    this.hijackPopRoute: true,
 
     /// events
     this.onChanged,
@@ -655,6 +657,9 @@ class DraggableContainerState<T extends DraggableItem>
         gestures: gestures,
         child: WillPopScope(
           onWillPop: () async {
+            if (!widget.hijackPopRoute) {
+              return true;
+            }
             if (pickUp != null) return false;
             if (_draggableMode) {
               draggableMode = false;
