@@ -70,6 +70,7 @@ class Demo1 extends StatelessWidget {
             child: DraggableContainer(
               draggableMode: true,
                autoReorder: true,
+               hijackPopRoute: false,
 //               allWayUseLongPress: true,
               // slot decoration
               slotDecoration: BoxDecoration(
