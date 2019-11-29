@@ -1,3 +1,25 @@
+### [0.1.8+5]
+
+Fixed the trigger logic for the onDraggableModeChanged.
+
+### [0.1.8+4]
+
+Update document
+
+### [0.1.8+3]
+
+Update document
+
+### [0.1.8+2]
+
+Update document
+
+### [0.1.8+1]
+
+补全文档
+Completion document
+
+
 ### [0.1.8]
 
 Add two methods:
