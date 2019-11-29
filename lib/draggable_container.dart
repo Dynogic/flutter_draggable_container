@@ -79,6 +79,7 @@ class DraggableContainer<T extends DraggableItem> extends StatefulWidget {
   final List<T> items;
   final Widget deleteButton;
   final bool hijackPopRoute;
+  final Widget slotPlaceholder;
 
   DraggableContainer({
     Key key,
@@ -90,6 +91,7 @@ class DraggableContainer<T extends DraggableItem> extends StatefulWidget {
     this.dragDecoration,
     this.autoReorder: true,
     this.hijackPopRoute: true,
+    this.slotPlaceholder,
 
     /// events
     this.onChanged,
@@ -126,6 +128,8 @@ class DraggableContainerState<T extends DraggableItem>
   final List<DraggableItemWidget> layers = [];
   final List<GlobalKey> _dragBeforeList = [];
   final Map<Type, GestureRecognizerFactory> gestures = {};
+  final Map<DraggableSlot, GlobalKey<_DraggableSlotState>> _slotRelationship =
+      {};
 
   Widget deleteButton;
   bool _draggableMode = false;
@@ -261,14 +265,19 @@ class DraggableContainerState<T extends DraggableItem>
       final Offset position = Offset(x, y),
           maxPosition =
               Offset(x + widget.slotSize.width, y + widget.slotSize.height);
+      final slotKey = new GlobalKey<_DraggableSlotState>();
       final slot = DraggableSlot(
+        key: slotKey,
         position: position,
         width: widget.slotSize.width,
         height: widget.slotSize.height,
         decoration: widget.slotDecoration,
+        placeholder: widget.slotPlaceholder,
         maxPosition: maxPosition,
         event: this,
+        showPlaceholderInitially: item == null,
       );
+      _slotRelationship[slot] = slotKey;
       _createItemWidget(slot, item);
       // print('width:${size.width}, x:$x, y:$y');
       x += widget.slotSize.width + margin.right;
@@ -405,6 +414,11 @@ class DraggableContainerState<T extends DraggableItem>
     if (autoReorder) reorder();
     setState(() {});
     layers.remove(kv.value?.currentWidget);
+    relationship.forEach((item, key) {
+      if (key == null) {
+        _slotRelationship[item].currentState.setShowPlaceholder(true);
+      }
+    });
     _triggerOnChanged();
     return true;
   }
@@ -680,12 +694,14 @@ class DraggableContainerState<T extends DraggableItem>
   }
 }
 
-class DraggableSlot extends StatelessWidget {
+class DraggableSlot extends StatefulWidget {
   final double width, height;
   final BoxDecoration decoration;
   final Offset position;
   final DraggableContainerEventMixin event;
   final Offset maxPosition;
+  final Widget placeholder;
+  final bool showPlaceholderInitially;
 
   const DraggableSlot(
       {Key key,
@@ -694,18 +710,42 @@ class DraggableSlot extends StatelessWidget {
       this.decoration,
       this.position,
       this.maxPosition,
-      this.event})
+      this.event,
+      this.placeholder,
+      this.showPlaceholderInitially})
       : super(key: key);
+
+  @override
+  State<StatefulWidget> createState() {
+    return _DraggableSlotState();
+  }
+}
+
+class _DraggableSlotState extends State<DraggableSlot> {
+  bool _showPlaceholder;
+
+  setShowPlaceholder(showPlaceholder) {
+    setState(() {
+      _showPlaceholder = showPlaceholder;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _showPlaceholder = widget.showPlaceholderInitially;
+  }
 
   @override
   Widget build(BuildContext context) {
     return Positioned(
-      left: position.dx,
-      top: position.dy,
-      width: width,
-      height: height,
+      left: widget.position.dx,
+      top: widget.position.dy,
+      width: widget.width,
+      height: widget.height,
       child: Container(
-        decoration: decoration,
+        decoration: widget.decoration,
+        child: _showPlaceholder ? widget.placeholder : null,
       ),
     );
   }
